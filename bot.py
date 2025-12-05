@@ -1,5 +1,6 @@
 import logging
 import os
+from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -59,4 +60,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
