@@ -1,6 +1,5 @@
 import logging
 import os
-from telegram import Update
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -48,7 +47,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Приглашаем вас на финисаж выставки 11 января в 16:00!"
     )
 
-# Асинхронный запуск
+import asyncio
 async def main():
     application = ApplicationBuilder().token(TOKEN).build()
 
@@ -60,3 +59,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
