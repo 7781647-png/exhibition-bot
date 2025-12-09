@@ -1,20 +1,14 @@
 import logging
-import asyncio
-
+import os
 from telegram import Update
-from telegram.ext import (
-    ApplicationBuilder,
-    CommandHandler,
-    MessageHandler,
-    ContextTypes,
-    filters
-)
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
+# Логирование
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TOKEN = "8004861374:AAE4aSX_IfEd_l6ljYbqC3BetlRqxCcDqsE"
-ADMIN_ID = 684872569
+TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 # /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -26,31 +20,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(text)
 
-# Ответы пользователей
+# получение сообщений
 async def feedback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
 
-    # Пересылаем админу
+    # сообщение админу
     await context.bot.send_message(
         chat_id=ADMIN_CHAT_ID,
         text=f"Новое сообщение от @{user.username} (id: {user.id})"
     )
     await update.message.forward(ADMIN_CHAT_ID)
 
-    # Ответ пользователю
+    # ответ пользователю
     await update.message.reply_text(
         "Спасибо за участие!\n"
-        "Приглашаем вас на финальный день выставки 11 января в 16:00 ❤️"
+        "Приглашаем вас 11 января в 16:00 ❤️"
     )
 
-# Запуск бота
 async def main():
     app = ApplicationBuilder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.ALL, feedback))
 
-    await app.run_polling()
+    # Render даёт переменную PORT
+    port = int(os.environ.get("PORT", 8443))
+
+    # Webhook режим
+    await app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=TOKEN,
+        webhook_url=f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}/{TOKEN}",
+    )
 
 if __name__ == "__main__":
+    import asyncio
     asyncio.run(main())
